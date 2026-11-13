@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ruleta al Azar</title>
+    <style>
+        /* Estilos base limpios y autocontenidos (funcionan 100% offline / file://) */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            touch-action: manipulation;
+            background-image: url('fondo.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background-color: #ffffff;
+            min-height: 100vh;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (min-width: 640px) {
+            body {
+                align-items: center;
+                padding: 24px;
+            }
+            .container {
+                min-height: auto;
+                border-radius: 20px;
+                box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+            }
+        }
+
+        h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            text-align: center;
+            color: #0f172a;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .label-row label {
+            color: #64748b;
+        }
+
+        .label-row span {
+            color: #94a3b8;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            background-color: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #1e293b;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: #4f46e5;
+            background-color: #ffffff;
+        }
+
+        .status-msg {
+            font-size: 0.8rem;
+            text-align: center;
+            color: #e11d48;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status-msg.visible {
+            display: block;
+        }
+
+        /* Contenedor de la ruleta y flecha superior */
+        .wheel-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 1 / 1;
+            margin: 4px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+
+        /* Botón principal Girar */
+        .spin-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background-color: #4f46e5;
+            color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            background-color: #4338ca;
+        }
+
+        .spin-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Ventana emergente (Modal) para el ganador */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(15, 23, 42, 0.65);
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 320px;
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            animation: popIn 0.22s ease-out;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-subtitle {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #4f46e5;
+            font-weight: 700;
+        }
+
+        .modal-winner {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 16px 0 22px;
+            word-break: break-word;
+            line-height: 1.3;
+        }
+
+        .close-btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            background-color: #4f46e5;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .close-btn:hover {
+            background-color: #4338ca;
+        }
+
+        .close-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+    <main class="container">
+        <h1>Ruleta al Azar</h1>
+
+        <!-- Cuadro de texto multilínea -->
+        <div class="input-group">
+            <div class="label-row">
+                <label for="optionsBox">Escribe un elemento por renglón:</label>
+                <span id="countText">3 opciones</span>
+            </div>
+            <textarea id="optionsBox" rows="5" placeholder="Opción 1&#10;Opción 2&#10;Opción 3">Opción 1
+Opción 2
+Opción 3</textarea>
+        </div>
+
+        <!-- Mensaje de aviso si faltan opciones -->
+        <p id="statusMsg" class="status-msg"></p>
+
+        <!-- Ruleta y flecha indicadora -->
+        <div class="wheel-wrapper">
+            <div class="pointer" aria-hidden="true">
+                <svg width="28" height="32" viewBox="0 0 28 32" fill="none">
+                    <path d="M14 30L2 6H26L14 30Z" fill="#0F172A" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <canvas id="wheelCanvas" width="300" height="300"></canvas>
+        </div>
+
+        <!-- Botón para girar -->
+        <button id="spinBtn" type="button" class="spin-btn">Girar</button>
+    </main>
+
+    <!-- Ventana emergente para mostrar al ganador -->
+    <div id="winnerModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-card">
+            <p id="modalTitle" class="modal-subtitle">¡Opción ganadora!</p>
+            <p id="modalWinnerText" class="modal-winner">—</p>
+            <button id="closeModalBtn" type="button" class="close-btn">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            let options = [];
+            let currentAngle = 0;
+            let isSpinning = false;
+
+            const colors = [
+                '#4F46E5', '#10B981', '#F59E0B', '#EC4899',
+                '#3B82F6', '#8B5CF6', '#14B8A6', '#F43F5E'
+            ];
+
+            const optionsBox = document.getElementById('optionsBox');
+            const countText = document.getElementById('countText');
+            const statusMsg = document.getElementById('statusMsg');
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
+            const spinBtn = document.getElementById('spinBtn');
+            const winnerModal = document.getElementById('winnerModal');
+            const modalWinnerText = document.getElementById('modalWinnerText');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+
+            // Leer los renglones no vacíos del textarea
+            function parseOptions() {
+                const lines = optionsBox.value
+                    .split(/\r?\n/)
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0);
+
+                options = lines;
+                countText.textContent = options.length === 1
+                    ? '1 opción'
+                    : `${options.length} opciones`;
+
+                if (options.length < 2) {
+                    showStatus('Escribe al menos 2 opciones (una por renglón).');
+                } else {
+                    hideStatus();
+                }
+
+                drawWheel();
+            }
+
+            function showStatus(msg) {
+                statusMsg.textContent = msg;
+                statusMsg.classList.add('visible');
+            }
+
+            function hideStatus() {
+                statusMsg.textContent = '';
+                statusMsg.classList.remove('visible');
+            }
+
+            // Ajustar resolución nítida y dibujar la ruleta
+            function drawWheel() {
+                const dpr = Math.max(window.devicePixelRatio || 1, 1);
+                const cssSize = canvas.clientWidth > 0 ? canvas.clientWidth : 300;
+                const targetSize = Math.round(cssSize * dpr);
+
+                if (canvas.width !== targetSize || canvas.height !== targetSize) {
+                    canvas.width = targetSize;
+                    canvas.height = targetSize;
+                }
+
+                ctx.save();
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                const center = cssSize / 2;
+                const radius = center - 2;
+
+                ctx.clearRect(0, 0, cssSize, cssSize);
+
+                // Estado vacío si no hay opciones
+                if (options.length === 0) {
+                    ctx.beginPath();
+                    ctx.arc(center, center, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#f1f5f9';
+                    ctx.fill();
+
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '600 14px system-ui, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('Escribe opciones arriba', center, center);
+                    ctx.restore();
+                    return;
+                }
+
+                const sliceAngle = (Math.PI * 2) / options.length;
+
+                for (let i = 0; i < options.length; i++) {
+                    const startAngle = currentAngle + i * sliceAngle;
+                    const endAngle = startAngle + sliceAngle;
+
+                    // Dibujar rebanada
+                    ctx.beginPath();
+                    ctx.moveTo(center, center);
+                    ctx.arc(center, center, radius, startAngle, endAngle);
+                    ctx.closePath();
+                    ctx.fillStyle = colors[i % colors.length];
+                    ctx.fill();
+
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.stroke();
+
+                    // Dibujar texto dentro de la rebanada
+                    ctx.save();
+                    ctx.translate(center, center);
+                    ctx.rotate(startAngle + sliceAngle / 2);
+
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#ffffff';
+
+                    const fontSize = options.length > 12 ? 11 : options.length > 8 ? 13 : 15;
+                    ctx.font = `700 ${fontSize}px system-ui, sans-serif`;
+
+                    let label = options[i];
+                    const maxChars = options.length > 10 ? 12 : 16;
+                    if (label.length > maxChars) {
+                        label = label.slice(0, maxChars - 1) + '…';
+                    }
+
+                    ctx.fillText(label, radius - 14, 0);
+                    ctx.restore();
+                }
+
+                // Círculo central decorativo
+                ctx.beginPath();
+                ctx.arc(center, center, 16, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.stroke();
+
+                ctx.restore();
+            }
+
+            // Girar suavemente durante ~3.5 segundos
+            function spinWheel() {
+                if (isSpinning) return;
+
+                if (options.length < 2) {
+                    showStatus('Necesitas al menos 2 opciones para girar.');
+                    optionsBox.focus();
+                    return;
+                }
+
+                hideStatus();
+                isSpinning = true;
+                spinBtn.disabled = true;
+                optionsBox.disabled = true;
+
+                const duration = 3500; // 3.5 segundos
+                const startAngle = currentAngle;
+                const extraSpins = (5 + Math.floor(Math.random() * 4)) * Math.PI * 2;
+                const randomOffset = Math.random() * Math.PI * 2;
+                const totalRotation = extraSpins + randomOffset;
+                const startTime = performance.now();
+
+                function animate(now) {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+
+                    // Desaceleración cúbica natural (easeOutCubic)
+                    const ease = 1 - Math.pow(1 - progress, 3);
+                    currentAngle = startAngle + totalRotation * ease;
+
+                    drawWheel();
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        currentAngle = currentAngle % (Math.PI * 2);
+                        isSpinning = false;
+                        spinBtn.disabled = false;
+                        optionsBox.disabled = false;
+                        determineWinner();
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            // Calcular opción alineada con la flecha superior (270° / 3π/2)
+            function determineWinner() {
+                const sliceAngle = (Math.PI * 2) / options.length;
+                const pointerAngle = (Math.PI * 3) / 2;
+                const normalized = ((currentAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+                const relative = (pointerAngle - normalized + Math.PI * 2) % (Math.PI * 2);
+                const winnerIndex = Math.floor(relative / sliceAngle) % options.length;
+                const winner = options[winnerIndex];
+
+                openWinnerModal(winner);
+            }
+
+            function openWinnerModal(winner) {
+                modalWinnerText.textContent = winner;
+                winnerModal.classList.add('open');
+            }
+
+            function closeWinnerModal() {
+                winnerModal.classList.remove('open');
+            }
+
+            // Eventos de usuario
+            optionsBox.addEventListener('input', parseOptions);
+            spinBtn.addEventListener('click', spinWheel);
+            closeModalBtn.addEventListener('click', closeWinnerModal);
+
+            winnerModal.addEventListener('click', function (e) {
+                if (e.target === winnerModal) {
+                    closeWinnerModal();
+                }
+            });
+
+            // Garantizar dibujado inicial en cualquier navegador o apertura local (file://)
+            parseOptions();
+            document.addEventListener('DOMContentLoaded', parseOptions);
+            window.addEventListener('load', drawWheel);
+            window.addEventListener('resize', drawWheel);
+
+            if (typeof ResizeObserver !== 'undefined') {
+                const observer = new ResizeObserver(function () {
+                    drawWheel();
+                });
+                observer.observe(canvas);
+            }
+        })();
+    </script>
+</body>
+</html>
