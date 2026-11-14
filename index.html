@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ruleta</title>
+    <title>Kyanaleta</title>
+    <!-- Ícono de la pestaña (Favicon) -->
+    <link rel="icon" type="image/png" href="centro1.png">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bevan:ital@0;1&family=Pixelify+Sans:wght@400..700&family=Redaction+50:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
-        /* Estilos base limpios y autocontenidos */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -19,7 +21,7 @@
 
         body {
             background-color: #2A0000;
-            background-image: url('fondo.jpg'); /* Cambia por tu fondo */
+            background-image: url('fondo.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -34,7 +36,7 @@
         .container {
             width: 100%;
             max-width: 440px;
-            background-color: rgba(72, 3, 1, 0.95);
+            background-color: rgba(72, 3, 1, 0.8);
             border: 3px solid #E57461;
             border-radius: 8px;
             box-shadow: 0 0 0 3px #480301, 0 12px 32px rgba(0, 0, 0, 0.65);
@@ -127,7 +129,6 @@
             display: block;
         }
 
-        /* Contenedor de la ruleta y aguja */
         .wheel-wrapper {
             position: relative;
             width: 100%;
@@ -170,40 +171,12 @@
             background-color: #2A0000;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
             image-rendering: pixelated;
+            cursor: pointer; /* Muestra que se puede presionar */
+            transition: transform 0.1s;
         }
 
-        /* Botón principal Girar */
-        .spin-btn {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #E57461;
-            border-radius: 6px;
-            background-color: #A63E30;
-            color: #FFF5F3;
-            font-family: 'Pixelify Sans', 'Special Elite', 'Redaction 50', monospace, sans-serif;
-            font-size: 1.35rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #480301;
-            transition: background-color 0.1s, transform 0.1s, box-shadow 0.1s;
-        }
-
-        .spin-btn:hover:not(:disabled) {
-            background-color: #E57461;
-            color: #2A0000;
-        }
-
-        .spin-btn:active:not(:disabled) {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #480301;
-        }
-
-        .spin-btn:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-            box-shadow: none;
+        canvas:active:not(.spinning) {
+            transform: scale(0.98);
         }
 
         /* Ventana emergente (Modal) */
@@ -309,6 +282,7 @@ Opción 3</textarea>
 
         <p id="statusMsg" class="status-msg"></p>
 
+        <!-- Ruleta y aguja (Ahora al hacer clic sobre el canvas gira) -->
         <div class="wheel-wrapper">
             <div class="pointer" aria-hidden="true">
                 <img
@@ -320,8 +294,6 @@ Opción 3</textarea>
             </div>
             <canvas id="wheelCanvas" width="300" height="300"></canvas>
         </div>
-
-        <button id="spinBtn" type="button" class="spin-btn">Girar</button>
     </main>
 
     <div id="winnerModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -338,7 +310,6 @@ Opción 3</textarea>
             let currentAngle = 0;
             let isSpinning = false;
 
-            // Únicamente tonos oscuros para asegurar que el texto blanco siempre resalte
             const colors = [
                 '#480301',
                 '#A63E30',
@@ -361,7 +332,6 @@ Opción 3</textarea>
             const statusMsg = document.getElementById('statusMsg');
             const canvas = document.getElementById('wheelCanvas');
             const ctx = canvas.getContext('2d');
-            const spinBtn = document.getElementById('spinBtn');
             const winnerModal = document.getElementById('winnerModal');
             const modalWinnerText = document.getElementById('modalWinnerText');
             const closeModalBtn = document.getElementById('closeModalBtn');
@@ -373,7 +343,6 @@ Opción 3</textarea>
                     .filter(line => line.length > 0);
 
                 countText.textContent = `${options.length} ${options.length === 1 ? 'opción' : 'opciones'}`;
-                spinBtn.disabled = options.length < 2 || isSpinning;
 
                 if (options.length < 2) {
                     statusMsg.textContent = 'Escribe al menos 2 opciones para poder girar.';
@@ -446,8 +415,6 @@ Opción 3</textarea>
 
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'middle';
-                    
-                    // Como ya no hay tonos claros, todo el texto se pinta en blanco brillante (#FFF5F3)
                     ctx.fillStyle = '#FFF5F3';
 
                     const fontSize = options.length > 12 ? 13 : options.length > 8 ? 15 : 17;
@@ -489,7 +456,6 @@ Opción 3</textarea>
                 if (isSpinning || options.length < 2) return;
 
                 isSpinning = true;
-                spinBtn.disabled = true;
                 optionsBox.disabled = true;
 
                 if (Math.random() < 0.15) {
@@ -517,7 +483,6 @@ Opción 3</textarea>
                     } else {
                         currentAngle = currentAngle % (Math.PI * 2);
                         isSpinning = false;
-                        spinBtn.disabled = false;
                         optionsBox.disabled = false;
                         showWinner();
                     }
@@ -540,7 +505,10 @@ Opción 3</textarea>
             }
 
             optionsBox.addEventListener('input', updateOptions);
-            spinBtn.addEventListener('click', spinWheel);
+            
+            // Evento para girar al hacer clic directamente sobre la ruleta (canvas)
+            canvas.addEventListener('click', spinWheel);
+
             closeModalBtn.addEventListener('click', closeModal);
             winnerModal.addEventListener('click', function (e) {
                 if (e.target === winnerModal) closeModal();
