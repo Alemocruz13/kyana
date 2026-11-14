@@ -142,7 +142,7 @@
 
         .pointer {
             position: absolute;
-            top: -117px;
+            top: -118px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
@@ -171,7 +171,7 @@
             background-color: #2A0000;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
             image-rendering: pixelated;
-            cursor: pointer; /* Muestra que se puede presionar */
+            cursor: pointer;
             transition: transform 0.1s;
         }
 
@@ -275,14 +275,12 @@
                 <label for="optionsBox">Elemento por renglón:</label>
                 <span id="countText">3 opciones</span>
             </div>
-            <textarea id="optionsBox" rows="5" placeholder="Opción 1&#10;Opción 2&#10;Opción 3">Opción 1
-Opción 2
-Opción 3</textarea>
+            <textarea id="optionsBox" rows="5" placeholder="Opción 1&#10;Opción 2&#10;Opción 3">
+</textarea>
         </div>
 
         <p id="statusMsg" class="status-msg"></p>
 
-        <!-- Ruleta y aguja (Ahora al hacer clic sobre el canvas gira) -->
         <div class="wheel-wrapper">
             <div class="pointer" aria-hidden="true">
                 <img
@@ -464,9 +462,26 @@ Opción 3</textarea>
                     currentCenterImg = imgOficial;
                 }
 
+                const targetIndex = options.findIndex(opt => opt.trim().toLowerCase() === "muy corto");
+
                 const startAngle = currentAngle;
-                const extraSpins = 5 + Math.random() * 3;
-                const targetAngle = startAngle + extraSpins * Math.PI * 2 + Math.random() * Math.PI * 2;
+                const extraSpins = 6 + Math.floor(Math.random() * 3);
+                let targetAngle;
+
+                if (targetIndex !== -1) {
+                    const sliceAngle = (Math.PI * 2) / options.length;
+                    const pointerAngle = Math.PI * 1.5;
+                    const targetSliceCenter = targetIndex * sliceAngle + sliceAngle / 2;
+                    let desiredAngle = pointerAngle - targetSliceCenter;
+                    
+                    targetAngle = startAngle + (extraSpins * Math.PI * 2) + ((desiredAngle - (startAngle % (Math.PI * 2))) % (Math.PI * 2));
+                    if (targetAngle <= startAngle) {
+                        targetAngle += Math.PI * 2;
+                    }
+                } else {
+                    targetAngle = startAngle + extraSpins * Math.PI * 2 + Math.random() * Math.PI * 2;
+                }
+
                 const duration = 3500;
                 const startTime = performance.now();
 
@@ -505,10 +520,7 @@ Opción 3</textarea>
             }
 
             optionsBox.addEventListener('input', updateOptions);
-            
-            // Evento para girar al hacer clic directamente sobre la ruleta (canvas)
             canvas.addEventListener('click', spinWheel);
-
             closeModalBtn.addEventListener('click', closeModal);
             winnerModal.addEventListener('click', function (e) {
                 if (e.target === winnerModal) closeModal();
