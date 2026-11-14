@@ -4,39 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ruleta al Azar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bevan:ital@0;1&family=Redaction+50:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
         /* Estilos base limpios y autocontenidos (funcionan 100% offline / file://) */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Redaction 50', 'Special Elite', Georgia, serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: #f1f5f9;
-            color: #1e293b;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            touch-action: manipulation;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 440px;
-            background-color: #ffffff;
-            min-height: 100vh;
-            padding: 24px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        @media (min-width: 640px) {
-            body {
             background-color: #2A0000;
             /* Si quieres poner una imagen de fondo, quita las barras /* y */ de las siguientes 3 líneas y pon el nombre de tu imagen: */
             /* background-image: url('tu-imagen.jpg'); */
@@ -76,12 +57,13 @@
         }
 
         h1 {
-            font-size: 1.35rem;
-            font-weight: 800;
+            font-family: 'Bevan', Georgia, serif;
+            font-size: 1.45rem;
+            font-weight: 400;
             text-align: center;
             color: #FFF5F3;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
         }
 
         .input-group {
@@ -114,6 +96,7 @@
             border-radius: 0;
             background-color: #2A0000;
             border: 1.5px solid #A63E30;
+            font-family: 'Special Elite', 'Redaction 50', monospace;
             font-size: 1rem;
             line-height: 1.5;
             color: #FFF5F3;
@@ -158,13 +141,13 @@
 
         .pointer {
             position: absolute;
-            top: -18px;
+            top: -115px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
             pointer-events: none;
-            width: 68px;
-            height: 92px;
+            width: 200px;
+            height: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -196,8 +179,9 @@
             clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
             background-color: #A63E30;
             color: #FFF5F3;
-            font-size: 1.1rem;
-            font-weight: 800;
+            font-family: 'Bevan', Georgia, serif;
+            font-size: 1.15rem;
+            font-weight: 400;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             cursor: pointer;
@@ -267,8 +251,9 @@
         }
 
         .modal-winner {
+            font-family: 'Bevan', Georgia, serif;
             font-size: 1.65rem;
-            font-weight: 800;
+            font-weight: 400;
             color: #FFF5F3;
             margin: 16px 0 22px;
             word-break: break-word;
@@ -283,8 +268,9 @@
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
             background-color: #A63E30;
             color: #FFF5F3;
+            font-family: 'Bevan', Georgia, serif;
             font-size: 0.95rem;
-            font-weight: 700;
+            font-weight: 400;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             cursor: pointer;
@@ -319,10 +305,9 @@ Opción 3</textarea>
 
         <p id="statusMsg" class="status-msg"></p>
 
-        <!-- Ruleta y aguja (placeholder para imagen de lengua de gato) -->
+        <!-- Ruleta y aguja -->
         <div class="wheel-wrapper">
             <div class="pointer" aria-hidden="true">
-                <!-- CAMBIA el atributo src="" por el nombre o ruta de tu imagen (ej. src="lengua-gato.png") -->
                 <img
                     id="pointerImg"
                     src="aguja.png"
@@ -413,7 +398,7 @@ Opción 3</textarea>
                     ctx.fill();
 
                     ctx.fillStyle = '#E57461';
-                    ctx.font = '600 14px system-ui, sans-serif';
+                    ctx.font = '400 14px "Special Elite", "Redaction 50", serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('Escribe opciones arriba', center, center);
@@ -456,7 +441,7 @@ Opción 3</textarea>
                     ctx.fillStyle = sliceColor === '#E57461' ? '#2A0000' : '#FFF5F3';
 
                     const fontSize = options.length > 12 ? 11 : options.length > 8 ? 13 : 15;
-                    ctx.font = `700 ${fontSize}px system-ui, sans-serif`;
+                    ctx.font = `400 ${fontSize}px "Special Elite", "Redaction 50", serif`;
 
                     let label = options[i];
                     const maxChars = options.length > 10 ? 12 : 16;
