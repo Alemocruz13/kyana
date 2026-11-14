@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ruleta al Azar</title>
+    <title>Ruleta</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bevan:ital@0;1&family=Redaction+50:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bevan:ital@0;1&family=Pixelify+Sans:wght@400..700&family=Redaction+50:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
-        /* Estilos base limpios y autocontenidos (funcionan 100% offline / file://) */
+        /* Estilos base limpios y autocontenidos */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Redaction 50', 'Special Elite', Georgia, serif;
+            font-family: 'Pixelify Sans', 'Special Elite', 'Redaction 50', monospace, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: #2A0000;
-            /* Si quieres poner una imagen de fondo, quita las barras /* y */ de las siguientes 3 líneas y pon el nombre de tu imagen: */
-            /* background-image: url('tu-imagen.jpg'); */
-            /* background-size: cover; */
-            /* background-position: center; */
+            background-image: url('fondo.jpg'); /* Cambia por tu fondo */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: #FFF5F3;
             min-height: 100vh;
             display: flex;
@@ -34,8 +34,10 @@
         .container {
             width: 100%;
             max-width: 440px;
-            background-color: #480301;
-            border: 1px solid #6A0000;
+            background-color: rgba(72, 3, 1, 0.95);
+            border: 3px solid #E57461;
+            border-radius: 8px;
+            box-shadow: 0 0 0 3px #480301, 0 12px 32px rgba(0, 0, 0, 0.65);
             min-height: 100vh;
             padding: 24px 20px;
             display: flex;
@@ -50,20 +52,18 @@
             }
             .container {
                 min-height: auto;
-                border-radius: 0;
-                border: 2px solid #A63E30;
-                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
             }
         }
 
         h1 {
-            font-family: 'Bevan', Georgia, serif;
-            font-size: 1.45rem;
-            font-weight: 400;
+            font-family: 'Pixelify Sans', 'Special Elite', 'Redaction 50', monospace, sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
             text-align: center;
             color: #FFF5F3;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
+            text-shadow: 2px 2px #2A0000;
         }
 
         .input-group {
@@ -76,7 +76,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.78rem;
+            font-size: 0.9rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.04em;
@@ -93,11 +93,11 @@
         textarea {
             width: 100%;
             padding: 14px;
-            border-radius: 0;
             background-color: #2A0000;
-            border: 1.5px solid #A63E30;
-            font-family: 'Special Elite', 'Redaction 50', monospace;
-            font-size: 1rem;
+            border: 2px solid #A63E30;
+            border-radius: 4px;
+            font-family: 'Pixelify Sans', 'Special Elite', 'Redaction 50', monospace, sans-serif;
+            font-size: 1.15rem;
             line-height: 1.5;
             color: #FFF5F3;
             resize: vertical;
@@ -112,11 +112,11 @@
 
         textarea:focus {
             border-color: #E57461;
-            box-shadow: 0 0 0 2px rgba(229, 116, 97, 0.25);
+            box-shadow: 0 0 0 2px rgba(229, 116, 97, 0.3);
         }
 
         .status-msg {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             text-align: center;
             color: #E57461;
             font-weight: 600;
@@ -127,7 +127,7 @@
             display: block;
         }
 
-        /* Contenedor de la ruleta y aguja afilada superior */
+        /* Contenedor de la ruleta y aguja */
         .wheel-wrapper {
             position: relative;
             width: 100%;
@@ -141,7 +141,7 @@
 
         .pointer {
             position: absolute;
-            top: -115px;
+            top: -117px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
@@ -158,6 +158,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            image-rendering: pixelated;
         }
 
         canvas {
@@ -165,27 +166,28 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 3px solid #A63E30;
+            border: 4px solid #A63E30;
             background-color: #2A0000;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+            image-rendering: pixelated;
         }
 
-        /* Botón principal Girar con cortes afilados */
+        /* Botón principal Girar */
         .spin-btn {
             width: 100%;
             padding: 16px;
-            border: 1.5px solid #E57461;
-            border-radius: 0;
-            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+            border: 2px solid #E57461;
+            border-radius: 6px;
             background-color: #A63E30;
             color: #FFF5F3;
-            font-family: 'Bevan', Georgia, serif;
-            font-size: 1.15rem;
-            font-weight: 400;
+            font-family: 'Pixelify Sans', 'Special Elite', 'Redaction 50', monospace, sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             cursor: pointer;
-            transition: background-color 0.2s, color 0.2s, transform 0.1s, opacity 0.2s;
+            box-shadow: 0 4px 0 #480301;
+            transition: background-color 0.1s, transform 0.1s, box-shadow 0.1s;
         }
 
         .spin-btn:hover:not(:disabled) {
@@ -194,15 +196,17 @@
         }
 
         .spin-btn:active:not(:disabled) {
-            transform: scale(0.98);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #480301;
         }
 
         .spin-btn:disabled {
             opacity: 0.45;
             cursor: not-allowed;
+            box-shadow: none;
         }
 
-        /* Ventana emergente (Modal) afilada para el ganador */
+        /* Ventana emergente (Modal) */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -222,12 +226,11 @@
             width: 100%;
             max-width: 320px;
             background-color: #480301;
-            border: 2px solid #E57461;
-            border-radius: 0;
-            clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+            border: 3px solid #E57461;
+            border-radius: 8px;
+            box-shadow: 0 0 0 3px #2A0000, 0 18px 40px rgba(0, 0, 0, 0.75);
             padding: 26px 24px;
             text-align: center;
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75);
             animation: popIn 0.2s ease-out;
         }
 
@@ -243,38 +246,39 @@
         }
 
         .modal-subtitle {
-            font-size: 0.75rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             color: #E57461;
-            font-weight: 800;
+            font-weight: 700;
         }
 
         .modal-winner {
-            font-family: 'Bevan', Georgia, serif;
-            font-size: 1.65rem;
-            font-weight: 400;
+            font-family: 'Pixelify Sans', 'Special Elite', 'Redaction 50', monospace, sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
             color: #FFF5F3;
             margin: 16px 0 22px;
             word-break: break-word;
             line-height: 1.3;
+            text-shadow: 2px 2px #2A0000;
         }
 
         .close-btn {
             width: 100%;
             padding: 13px;
-            border: 1px solid #E57461;
-            border-radius: 0;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            border: 2px solid #E57461;
+            border-radius: 6px;
             background-color: #A63E30;
             color: #FFF5F3;
-            font-family: 'Bevan', Georgia, serif;
-            font-size: 0.95rem;
-            font-weight: 400;
+            font-family: 'Pixelify Sans', 'Special Elite', 'Redaction 50', monospace, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             cursor: pointer;
-            transition: background-color 0.2s, color 0.2s, transform 0.1s;
+            box-shadow: 0 3px 0 #2A0000;
+            transition: background-color 0.1s, transform 0.1s, box-shadow 0.1s;
         }
 
         .close-btn:hover {
@@ -283,19 +287,19 @@
         }
 
         .close-btn:active {
-            transform: scale(0.98);
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #2A0000;
         }
     </style>
 </head>
 <body>
 
     <main class="container">
-        <h1>Ruleta al Azar</h1>
+        <h1>Kyanaleta</h1>
 
-        <!-- Cuadro de texto multilínea -->
         <div class="input-group">
             <div class="label-row">
-                <label for="optionsBox">Escribe un elemento por renglón:</label>
+                <label for="optionsBox">Elemento por renglón:</label>
                 <span id="countText">3 opciones</span>
             </div>
             <textarea id="optionsBox" rows="5" placeholder="Opción 1&#10;Opción 2&#10;Opción 3">Opción 1
@@ -305,7 +309,6 @@ Opción 3</textarea>
 
         <p id="statusMsg" class="status-msg"></p>
 
-        <!-- Ruleta y aguja -->
         <div class="wheel-wrapper">
             <div class="pointer" aria-hidden="true">
                 <img
@@ -318,11 +321,9 @@ Opción 3</textarea>
             <canvas id="wheelCanvas" width="300" height="300"></canvas>
         </div>
 
-        <!-- Botón para girar -->
         <button id="spinBtn" type="button" class="spin-btn">Girar</button>
     </main>
 
-    <!-- Ventana emergente para mostrar al ganador -->
     <div id="winnerModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-card">
             <p id="modalTitle" class="modal-subtitle">¡Opción ganadora!</p>
@@ -337,12 +338,23 @@ Opción 3</textarea>
             let currentAngle = 0;
             let isSpinning = false;
 
+            // Únicamente tonos oscuros para asegurar que el texto blanco siempre resalte
             const colors = [
                 '#480301',
                 '#A63E30',
-                '#6A0000',
-                '#E57461'
+                '#6A0000'
             ];
+
+            const imgOficial = new Image();
+            imgOficial.src = 'centro1.png';
+
+            const imgEasterEgg = new Image();
+            imgEasterEgg.src = 'centro.png';
+
+            let currentCenterImg = imgOficial;
+
+            imgOficial.onload = drawWheel;
+            imgEasterEgg.onload = drawWheel;
 
             const optionsBox = document.getElementById('optionsBox');
             const countText = document.getElementById('countText');
@@ -390,7 +402,6 @@ Opción 3</textarea>
                 const center = size / 2;
                 const radius = center;
 
-                // Estado vacío si no hay opciones
                 if (options.length === 0) {
                     ctx.beginPath();
                     ctx.arc(center, center, radius, 0, Math.PI * 2);
@@ -398,7 +409,7 @@ Opción 3</textarea>
                     ctx.fill();
 
                     ctx.fillStyle = '#E57461';
-                    ctx.font = '400 14px "Special Elite", "Redaction 50", serif';
+                    ctx.font = '700 15px "Pixelify Sans", monospace';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText('Escribe opciones arriba', center, center);
@@ -412,14 +423,12 @@ Opción 3</textarea>
                     const startAngle = currentAngle + i * sliceAngle;
                     const endAngle = startAngle + sliceAngle;
 
-                    // Evitar que la última rebanada repita el color de la primera si hay > 2 opciones
                     let colorIndex = i % colors.length;
                     if (options.length > 2 && i === options.length - 1 && colorIndex === 0) {
                         colorIndex = 1;
                     }
                     const sliceColor = colors[colorIndex];
 
-                    // Dibujar rebanada
                     ctx.beginPath();
                     ctx.moveTo(center, center);
                     ctx.arc(center, center, radius, startAngle, endAngle);
@@ -431,17 +440,18 @@ Opción 3</textarea>
                     ctx.strokeStyle = '#2A0000';
                     ctx.stroke();
 
-                    // Dibujar texto dentro de la rebanada con alto contraste
                     ctx.save();
                     ctx.translate(center, center);
                     ctx.rotate(startAngle + sliceAngle / 2);
 
                     ctx.textAlign = 'right';
                     ctx.textBaseline = 'middle';
-                    ctx.fillStyle = sliceColor === '#E57461' ? '#2A0000' : '#FFF5F3';
+                    
+                    // Como ya no hay tonos claros, todo el texto se pinta en blanco brillante (#FFF5F3)
+                    ctx.fillStyle = '#FFF5F3';
 
-                    const fontSize = options.length > 12 ? 11 : options.length > 8 ? 13 : 15;
-                    ctx.font = `400 ${fontSize}px "Special Elite", "Redaction 50", serif`;
+                    const fontSize = options.length > 12 ? 13 : options.length > 8 ? 15 : 17;
+                    ctx.font = `700 ${fontSize}px "Pixelify Sans", monospace`;
 
                     let label = options[i];
                     const maxChars = options.length > 10 ? 12 : 16;
@@ -453,33 +463,40 @@ Opción 3</textarea>
                     ctx.restore();
                 }
 
-                // Centro en forma de diamante / estrella afilada
                 ctx.save();
                 ctx.translate(center, center);
                 ctx.rotate(currentAngle);
-                ctx.beginPath();
-                ctx.moveTo(0, -18);
-                ctx.lineTo(18, 0);
-                ctx.lineTo(0, 18);
-                ctx.lineTo(-18, 0);
-                ctx.closePath();
-                ctx.fillStyle = '#480301';
-                ctx.fill();
-                ctx.lineWidth = 2.5;
-                ctx.strokeStyle = '#E57461';
-                ctx.stroke();
+
+                const imgSize = 75;
+                
+                if (currentCenterImg.complete && currentCenterImg.naturalHeight !== 0) {
+                    ctx.drawImage(currentCenterImg, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, imgSize / 2, 0, Math.PI * 2);
+                    ctx.fillStyle = '#480301';
+                    ctx.fill();
+                    ctx.lineWidth = 2.5;
+                    ctx.strokeStyle = '#E57461';
+                    ctx.stroke();
+                }
                 ctx.restore();
 
                 ctx.restore();
             }
 
-            // Girar suavemente durante ~3.5 segundos
             function spinWheel() {
                 if (isSpinning || options.length < 2) return;
 
                 isSpinning = true;
                 spinBtn.disabled = true;
                 optionsBox.disabled = true;
+
+                if (Math.random() < 0.15) {
+                    currentCenterImg = imgEasterEgg;
+                } else {
+                    currentCenterImg = imgOficial;
+                }
 
                 const startAngle = currentAngle;
                 const extraSpins = 5 + Math.random() * 3;
@@ -509,7 +526,6 @@ Opción 3</textarea>
                 requestAnimationFrame(animate);
             }
 
-            // Calcular opción bajo la flecha superior (-90° / 3π/2) y abrir modal
             function showWinner() {
                 const sliceAngle = (Math.PI * 2) / options.length;
                 const pointerAngle = (Math.PI * 1.5 - currentAngle % (Math.PI * 2) + Math.PI * 4) % (Math.PI * 2);
